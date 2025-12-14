@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 public class Node
 {
@@ -15,34 +16,6 @@ public class Node
         Rank = rank;
     }
 
-    public void InsertTop(Node node)
-    {
-        if (node == null) return;
-        this.Top = node;
-        node.Bottom = this;
-    }
-
-    public void InsertBottom(Node node)
-    {
-        if (node == null) return;
-        this.Bottom = node;
-        node.Top = this;
-    }
-
-    public void InsertLeft(Node node)
-    {
-        if (node == null) return;
-        this.Left = node;
-        node.Right = this;
-    }
-
-    public void InsertRight(Node node)
-    {
-        if (node == null) return;
-        this.Right = node;
-        node.Left = this;
-    }
-
     public string GetPosition()
     {
         return $"{File}{Rank}";
@@ -54,11 +27,124 @@ public class Node
     }
 }
 
+public class Grid
+{
+    private Dictionary<string, Node> nodes;
+    public Node Root { get; set; }
+
+    public Grid(Node root)
+    {
+        nodes = new Dictionary<string, Node>();
+        Root = root;
+        nodes[root.GetPosition()] = root;
+    }
+
+    // Insert functions - each only creates ONE link
+    public void InsertTop(Node node, Node newNode)
+    {
+        if (node == null || newNode == null) return;
+        node.Top = newNode;
+        nodes[newNode.GetPosition()] = newNode;
+    }
+
+    public void InsertBottom(Node node, Node newNode)
+    {
+        if (node == null || newNode == null) return;
+        node.Bottom = newNode;
+        nodes[newNode.GetPosition()] = newNode;
+    }
+
+    public void InsertLeft(Node node, Node newNode)
+    {
+        if (node == null || newNode == null) return;
+        node.Left = newNode;
+        nodes[newNode.GetPosition()] = newNode;
+    }
+
+    public void InsertRight(Node node, Node newNode)
+    {
+        if (node == null || newNode == null) return;
+        node.Right = newNode;
+        nodes[newNode.GetPosition()] = newNode;
+    }
+
+    // CRUD - Select (Read)
+    public Node Select(char file, int rank)
+    {
+        string key = $"{file}{rank}";
+        return nodes.ContainsKey(key) ? nodes[key] : null;
+    }
+
+    // CRUD - Update
+    public bool Update(char file, int rank, char newFile, int newRank)
+    {
+        Node node = Select(file, rank);
+        if (node == null) return false;
+
+        // Remove old key
+        nodes.Remove(node.GetPosition());
+
+        // Update node
+        node.File = newFile;
+        node.Rank = newRank;
+
+        // Add with new key
+        nodes[node.GetPosition()] = node;
+        return true;
+    }
+
+    // CRUD - Delete
+    public bool Delete(char file, int rank)
+    {
+        Node node = Select(file, rank);
+        if (node == null) return false;
+
+        // Remove connections
+        if (node.Top != null) node.Top.Bottom = null;
+        if (node.Bottom != null) node.Bottom.Top = null;
+        if (node.Left != null) node.Left.Right = null;
+        if (node.Right != null) node.Right.Left = null;
+
+        // Remove from dictionary
+        nodes.Remove(node.GetPosition());
+        return true;
+    }
+
+    // Display node connections
+    public void DisplayConnections(char file, int rank)
+    {
+        Node node = Select(file, rank);
+        if (node == null)
+        {
+            Console.WriteLine($"Node {file}{rank} not found.");
+            return;
+        }
+
+        Console.WriteLine($"Connections for {node.GetPosition()}:");
+        Console.WriteLine($"  Top:    {(node.Top != null ? node.Top.GetPosition() : "None")}");
+        Console.WriteLine($"  Bottom: {(node.Bottom != null ? node.Bottom.GetPosition() : "None")}");
+        Console.WriteLine($"  Left:   {(node.Left != null ? node.Left.GetPosition() : "None")}");
+        Console.WriteLine($"  Right:  {(node.Right != null ? node.Right.GetPosition() : "None")}");
+        Console.WriteLine();
+    }
+
+    // Display all nodes
+    public void DisplayAll()
+    {
+        Console.WriteLine($"Total nodes in grid: {nodes.Count}");
+        foreach (var node in nodes.Values)
+        {
+            Console.WriteLine($"  {node.GetPosition()}");
+        }
+        Console.WriteLine();
+    }
+}
+
 public class Program
 {
     public static void Main()
     {
-
+        // Create all nodes
         Node a1 = new Node('A', 1);
         Node a2 = new Node('A', 2);
         Node a3 = new Node('A', 3);
@@ -66,6 +152,7 @@ public class Program
         Node a5 = new Node('A', 5);
         Node a6 = new Node('A', 6);
         Node a7 = new Node('A', 7);
+
         Node b1 = new Node('B', 1);
         Node b2 = new Node('B', 2);
         Node b3 = new Node('B', 3);
@@ -73,6 +160,7 @@ public class Program
         Node b5 = new Node('B', 5);
         Node b6 = new Node('B', 6);
         Node b7 = new Node('B', 7);
+
         Node c1 = new Node('C', 1);
         Node c2 = new Node('C', 2);
         Node c3 = new Node('C', 3);
@@ -81,82 +169,103 @@ public class Program
         Node c6 = new Node('C', 6);
         Node c7 = new Node('C', 7);
 
-        a1.InsertRight(a2);
-        a2.InsertRight(a3);
-        a3.InsertRight(a4);
-        a4.InsertRight(a5);
-        a5.InsertRight(a6);
-        a6.InsertRight(a7);
+        // Create grid with root node a1
+        Grid grid = new Grid(a1);
 
-        a7.InsertLeft(a6);
-        a6.InsertLeft(a5);
-        a5.InsertLeft(a4);
-        a4.InsertLeft(a3);
-        a3.InsertLeft(a2);
-        a2.InsertLeft(a1);
+        // Link row A horizontally
+        grid.InsertRight(a1, a2);
+        grid.InsertRight(a2, a3);
+        grid.InsertRight(a3, a4);
+        grid.InsertRight(a4, a5);
+        grid.InsertRight(a5, a6);
+        grid.InsertRight(a6, a7);
 
-        b1.InsertRight(b2);
-        b2.InsertRight(b3);
-        b3.InsertRight(b4);
-        b4.InsertRight(b5);
-        b5.InsertRight(b6);
-        b6.InsertRight(b7);
+        grid.InsertLeft(a7, a6);
+        grid.InsertLeft(a6, a5);
+        grid.InsertLeft(a5, a4);
+        grid.InsertLeft(a4, a3);
+        grid.InsertLeft(a3, a2);
+        grid.InsertLeft(a2, a1);
 
-        b7.InsertLeft(b6);
-        b6.InsertLeft(b5);
-        b5.InsertLeft(b4);
-        b4.InsertLeft(b3);
-        b3.InsertLeft(b2);
-        b2.InsertLeft(b1);
+        // Link row B horizontally
+        grid.InsertRight(b1, b2);
+        grid.InsertRight(b2, b3);
+        grid.InsertRight(b3, b4);
+        grid.InsertRight(b4, b5);
+        grid.InsertRight(b5, b6);
+        grid.InsertRight(b6, b7);
 
-        c1.InsertRight(c2);
-        c2.InsertRight(c3);
-        c3.InsertRight(c4);
-        c4.InsertRight(c5);
-        c5.InsertRight(c6);
-        c6.InsertRight(c7);
+        grid.InsertLeft(b7, b6);
+        grid.InsertLeft(b6, b5);
+        grid.InsertLeft(b5, b4);
+        grid.InsertLeft(b4, b3);
+        grid.InsertLeft(b3, b2);
+        grid.InsertLeft(b2, b1);
 
-        c7.InsertLeft(c6);
-        c6.InsertLeft(c5);
-        c5.InsertLeft(c4);
-        c4.InsertLeft(c3);
-        c3.InsertLeft(c2);
-        c2.InsertLeft(c1);
-        
-        a1.InsertTop(b1);
-        b1.InsertTop(c1);
-        a2.InsertTop(b2);
-        b2.InsertTop(c2);
-        a3.InsertTop(b3);
-        b3.InsertTop(c3);
-        a4.InsertTop(b4);
-        b4.InsertTop(c4);
-        a5.InsertTop(b5);
-        b5.InsertTop(c5);
-        a6.InsertTop(b6);
-        b6.InsertTop(c6);
-        a7.InsertTop(b7);
-        b7.InsertTop(c7);
+        // Link row C horizontally
+        grid.InsertRight(c1, c2);
+        grid.InsertRight(c2, c3);
+        grid.InsertRight(c3, c4);
+        grid.InsertRight(c4, c5);
+        grid.InsertRight(c5, c6);
+        grid.InsertRight(c6, c7);
 
-        c1.InsertBottom(b1);
-        b1.InsertBottom(a1);
-        c2.InsertBottom(b2);
-        b2.InsertBottom(a2);
-        c3.InsertBottom(b3);
-        b3.InsertBottom(a3);
-        c4.InsertBottom(b4);
-        b4.InsertBottom(a4);
-        c5.InsertBottom(b5);
-        b5.InsertBottom(a5);
-        c6.InsertBottom(b6);
-        b6.InsertBottom(a6);
-        c7.InsertBottom(b7);
-        b7.InsertBottom(a7);
+        grid.InsertLeft(c7, c6);
+        grid.InsertLeft(c6, c5);
+        grid.InsertLeft(c5, c4);
+        grid.InsertLeft(c4, c3);
+        grid.InsertLeft(c3, c2);
+        grid.InsertLeft(c2, c1);
 
+        // Link vertically: A to B to C
+        grid.InsertTop(a1, b1);
+        grid.InsertTop(b1, c1);
+        grid.InsertTop(a2, b2);
+        grid.InsertTop(b2, c2);
+        grid.InsertTop(a3, b3);
+        grid.InsertTop(b3, c3);
+        grid.InsertTop(a4, b4);
+        grid.InsertTop(b4, c4);
+        grid.InsertTop(a5, b5);
+        grid.InsertTop(b5, c5);
+        grid.InsertTop(a6, b6);
+        grid.InsertTop(b6, c6);
+        grid.InsertTop(a7, b7);
+        grid.InsertTop(b7, c7);
 
+        grid.InsertBottom(c1, b1);
+        grid.InsertBottom(b1, a1);
+        grid.InsertBottom(c2, b2);
+        grid.InsertBottom(b2, a2);
+        grid.InsertBottom(c3, b3);
+        grid.InsertBottom(b3, a3);
+        grid.InsertBottom(c4, b4);
+        grid.InsertBottom(b4, a4);
+        grid.InsertBottom(c5, b5);
+        grid.InsertBottom(b5, a5);
+        grid.InsertBottom(c6, b6);
+        grid.InsertBottom(b6, a6);
+        grid.InsertBottom(c7, b7);
+        grid.InsertBottom(b7, a7);
 
-        Console.WriteLine($"{a1.GetPosition()} is linked to:");
-        if (a1.Top != null) Console.WriteLine($"  Top: {a1.Top.GetPosition()}");
-        if (a1.Right != null) Console.WriteLine($"  Right: {a1.Right.GetPosition()}");
+        // Display the grid
+        Console.WriteLine("Full 3x7 Grid created!");
+        grid.DisplayAll();
+
+        // Test connections - verify bidirectional links
+        Console.WriteLine("Root node (A1) connections:");
+        grid.DisplayConnections('A', 1);
+
+        Console.WriteLine("A2 connections:");
+        grid.DisplayConnections('A', 2);
+
+        Console.WriteLine("Middle node (B4):");
+        grid.DisplayConnections('B', 4);
+
+        Console.WriteLine("C1 connections:");
+        grid.DisplayConnections('C', 1);
+
+        Console.WriteLine("Top right corner (C7):");
+        grid.DisplayConnections('C', 7);
     }
 }

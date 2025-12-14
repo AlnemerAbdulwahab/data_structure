@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\aan12\\Desktop\\Github-AlnemerAbdulwahab\\data_structure\\data_structure\\data_structure.csproj",
+      "projectUniqueName": "C:\\Users\\aan12\\Desktop\\PC\\Github-AlnemerAbdulwahab\\data_structure\\data_structure\\data_structure.csproj",
       "projectName": "data_structure",
-      "projectPath": "C:\\Users\\aan12\\Desktop\\Github-AlnemerAbdulwahab\\data_structure\\data_structure\\data_structure.csproj",
+      "projectPath": "C:\\Users\\aan12\\Desktop\\PC\\Github-AlnemerAbdulwahab\\data_structure\\data_structure\\data_structure.csproj",
       "packagesPath": "C:\\Users\\aan12\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\aan12\\Desktop\\Github-AlnemerAbdulwahab\\data_structure\\data_structure\\obj\\",
+      "outputPath": "C:\\Users\\aan12\\Desktop\\PC\\Github-AlnemerAbdulwahab\\data_structure\\data_structure\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\aan12\\AppData\\Roaming\\NuGet\\NuGet.Config",
